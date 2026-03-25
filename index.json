@@ -1,5 +1,55 @@
 [
   {
+    "name": "agent-skill-creator",
+    "description": ">-",
+    "category": "",
+    "path": "skill_creator",
+    "file": "skill_creator/SKILL.md",
+    "files": [
+      "skill_creator/.gitignore",
+      "skill_creator/Dynamous/Agent_Skill_Creator.pdf",
+      "skill_creator/Dynamous/Content-Ideation/agent-skill-creator-full-brief.md",
+      "skill_creator/Dynamous/Content-Ideation/vscode-copilot-simulation.txt",
+      "skill_creator/Dynamous/agentskillimage.png",
+      "skill_creator/README.md",
+      "skill_creator/SKILL.md",
+      "skill_creator/exports/.gitignore",
+      "skill_creator/install.sh",
+      "skill_creator/references/agentdb-integration.md",
+      "skill_creator/references/architecture-guide.md",
+      "skill_creator/references/cross-platform-guide.md",
+      "skill_creator/references/examples/stock-analyzer/.claude-plugin/marketplace.json",
+      "skill_creator/references/examples/stock-analyzer/README.md",
+      "skill_creator/references/examples/stock-analyzer/SKILL.md",
+      "skill_creator/references/examples/stock-analyzer/requirements.txt",
+      "skill_creator/references/examples/stock-analyzer/scripts/main.py",
+      "skill_creator/references/export-guide.md",
+      "skill_creator/references/interactive-mode.md",
+      "skill_creator/references/multi-agent-guide.md",
+      "skill_creator/references/phase1-discovery.md",
+      "skill_creator/references/phase2-design.md",
+      "skill_creator/references/phase3-architecture.md",
+      "skill_creator/references/phase4-detection.md",
+      "skill_creator/references/phase5-implementation.md",
+      "skill_creator/references/pipeline-phases.md",
+      "skill_creator/references/quality-standards.md",
+      "skill_creator/references/templates-guide.md",
+      "skill_creator/references/templates/README-activation-template.md",
+      "skill_creator/registry/registry.json",
+      "skill_creator/scripts/__pycache__/security_scan.cpython-314.pyc",
+      "skill_creator/scripts/__pycache__/staleness_check.cpython-314.pyc",
+      "skill_creator/scripts/__pycache__/validate.cpython-314.pyc",
+      "skill_creator/scripts/bootstrap.sh",
+      "skill_creator/scripts/export_utils.py",
+      "skill_creator/scripts/install-skill.sh",
+      "skill_creator/scripts/install-template.sh",
+      "skill_creator/scripts/security_scan.py",
+      "skill_creator/scripts/skill_registry.py",
+      "skill_creator/scripts/staleness_check.py",
+      "skill_creator/scripts/validate.py"
+    ]
+  },
+  {
     "name": "brainstorming",
     "description": "You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Explores user intent, requirements and design before implementation.",
     "category": "",
@@ -37,6 +87,16 @@
     "file": "using-superpowers/SKILL.md",
     "files": [
       "using-superpowers/SKILL.md"
+    ]
+  },
+  {
+    "name": "worktree-dev-skill",
+    "description": ">-",
+    "category": "",
+    "path": "worktree-dev-skill",
+    "file": "worktree-dev-skill/SKILL.md",
+    "files": [
+      "worktree-dev-skill/SKILL.md"
     ]
   }
 ]
