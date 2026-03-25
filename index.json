@@ -8,5 +8,25 @@
     "files": [
       "brainstorming/SKILL.md"
     ]
+  },
+  {
+    "name": "skill-writer",
+    "description": "指导用户为 Claude Code 创建 Agent Skills。当用户想要创建、编写、创作或设计新的 Skill，或者在 SKILL.md 文件、Frontmatter 或 Skill 结构方面需要帮助时使用。",
+    "category": "",
+    "path": "skill-writer",
+    "file": "skill-writer/SKILL.md",
+    "files": [
+      "skill-writer/SKILL.md"
+    ]
+  },
+  {
+    "name": "using-superpowers",
+    "description": "Use when starting any conversation - establishes how to find and use skills, requiring Skill tool invocation before ANY response including clarifying questions",
+    "category": "",
+    "path": "using-superpowers",
+    "file": "using-superpowers/SKILL.md",
+    "files": [
+      "using-superpowers/SKILL.md"
+    ]
   }
 ]
