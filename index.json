@@ -60,6 +60,26 @@
     ]
   },
   {
+    "name": "skill-manager-skill",
+    "description": ">-",
+    "category": "",
+    "path": "skill-manager-skill",
+    "file": "skill-manager-skill/SKILL.md",
+    "files": [
+      "skill-manager-skill/SKILL.md",
+      "skill-manager-skill/output.txt",
+      "skill-manager-skill/scripts/__pycache__/skill_manager.cpython-314.pyc",
+      "skill-manager-skill/scripts/current_skills.txt",
+      "skill-manager-skill/scripts/skill_manager.py",
+      "skill-manager-skill/scripts/skills_list.txt",
+      "skill-manager-skill/scripts/skills_list_new.txt",
+      "skill-manager-skill/scripts/skills_utf8.txt",
+      "skill-manager-skill/scripts/verify_list.txt",
+      "skill-manager-skill/skills.txt",
+      "skill-manager-skill/skills_list.md"
+    ]
+  },
+  {
     "name": "skill-writer",
     "description": "指导用户为 Claude Code 创建 Agent Skills。当用户想要创建、编写、创作或设计新的 Skill，或者在 SKILL.md 文件、Frontmatter 或 Skill 结构方面需要帮助时使用。",
     "category": "",
