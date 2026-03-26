@@ -80,8 +80,9 @@ python ~/.gemini/antigravity/skills/skill-manager-skill/scripts/skill_manager.py
 - `references/environment-alignment.md` — Troubleshooting cross-IDE path issues
 
 ## Installation
+
 ```bash
-bash ~/.gemini/antigravity/skills/skill-manager-skill/install.sh
-# or for all platforms:
-bash ~/.gemini/antigravity/skills/skill-manager-skill/install.sh --all
+git clone --depth 1 --filter=blob:none --sparse https://github.com/lectttt/my-skills.git
+cd my-skills && git sparse-checkout set skills/skill-manager-skill
+python3 skills/skill-manager-skill/scripts/skill_manager.py install
 ```
