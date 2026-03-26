@@ -95,16 +95,6 @@
     ]
   },
   {
-    "name": "test-skill",
-    "description": "这是一个用于验证 AnySkill 同步机制的测试技能。如果你能看到这条信息，说明同步成功了！",
-    "category": "",
-    "path": "test-skill",
-    "file": "test-skill/SKILL.md",
-    "files": [
-      "test-skill/SKILL.md"
-    ]
-  },
-  {
     "name": "using-superpowers",
     "description": "Use when starting any conversation - establishes how to find and use skills, requiring Skill tool invocation before ANY response including clarifying questions",
     "category": "",
