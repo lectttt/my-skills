@@ -77,9 +77,11 @@
     "path": "skill-manager-skill",
     "file": "skill-manager-skill/SKILL.md",
     "files": [
+      "skill-manager-skill/.gitignore",
       "skill-manager-skill/SKILL.md",
       "skill-manager-skill/install.sh",
       "skill-manager-skill/references/commands-reference.md",
+      "skill-manager-skill/references/display-standards.md",
       "skill-manager-skill/references/environment-alignment.md",
       "skill-manager-skill/scripts/skill_manager.py"
     ]
