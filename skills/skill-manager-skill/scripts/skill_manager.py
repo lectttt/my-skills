@@ -406,6 +406,93 @@ def globalize(skill_path):
         print(f"Failed to globalize: {e}")
 
 
+# ---------------------------------------------------------------------------
+# Install
+# ---------------------------------------------------------------------------
+
+PLATFORM_SKILL_DIRS = {
+    "antigravity": HOME / ".gemini" / "antigravity" / "skills",
+    "gemini":      HOME / ".gemini" / "skills",
+    "claude":      HOME / ".claude" / "skills",
+    "universal":   HOME / ".agents" / "skills",
+    "cursor":      HOME / ".cursor" / "skills",
+    "windsurf":    HOME / ".codeium" / "windsurf" / "skills",
+    "cline":       HOME / ".clinerules" / "skills",
+    "kiro":        HOME / ".kiro" / "skills",
+}
+
+
+def detect_platforms():
+    """Return list of platform names whose base directories exist on this machine."""
+    detected = []
+    # gemini without antigravity
+    if (HOME / ".gemini").exists() and not (HOME / ".gemini" / "antigravity").exists():
+        detected.append("gemini")
+    checks = [
+        ("antigravity", HOME / ".gemini" / "antigravity"),
+        ("claude",      HOME / ".claude"),
+        ("universal",   HOME / ".agents"),
+        ("cursor",      HOME / ".cursor"),
+        ("windsurf",    HOME / ".codeium" / "windsurf"),
+        ("cline",       HOME / ".clinerules"),
+        ("kiro",        HOME / ".kiro"),
+    ]
+    for name, path in checks:
+        if path.exists():
+            detected.append(name)
+    return detected
+
+
+def install_skill(skill_dir, platforms=None, install_all=False, dry_run=False):
+    """
+    Register skill_dir into each target platform's skills directory via symlink
+    (or directory junction on Windows).
+    """
+    skill_dir = Path(skill_dir).resolve()
+    skill_name = skill_dir.name
+
+    if platforms:
+        target_platforms = list(platforms)
+    elif install_all:
+        target_platforms = detect_platforms()
+    else:
+        detected = detect_platforms()
+        target_platforms = detected[:1]  # highest-priority detected platform
+
+    if not target_platforms:
+        print("[!] No supported platforms detected. Use --platform to specify one.")
+        print("    Available: " + ", ".join(PLATFORM_SKILL_DIRS.keys()))
+        return
+
+    for plat in target_platforms:
+        dest_dir = PLATFORM_SKILL_DIRS.get(plat)
+        if not dest_dir:
+            print(f"[!] Unknown platform: {plat}")
+            continue
+        dest = dest_dir / skill_name
+        if dry_run:
+            print(f"[DRY-RUN] Would install: {skill_name} → {dest}")
+            continue
+        dest_dir.mkdir(parents=True, exist_ok=True)
+        if dest.is_symlink():
+            dest.unlink()
+        elif dest.exists():
+            print(f"[SKIP] {dest} already exists as a real directory.")
+            continue
+        try:
+            if IS_WINDOWS:
+                import _winapi
+                _winapi.CreateJunction(str(skill_dir), str(dest))
+            else:
+                dest.symlink_to(skill_dir)
+            print(f"[✓] {plat}: {dest}")
+        except Exception as e:
+            print(f"[✗] {plat}: {e}")
+
+    if not dry_run:
+        print("\nDone. Restart your Agent and type /skill-manager.")
+
+
 def check_paths():
     print("--- Skill Path Alignment Check ---")
     home = Path.home()
@@ -658,9 +745,17 @@ def main():
     harv_parser = subparsers.add_parser("harvest", help="Extract knowledge from a project")
     harv_parser.add_argument("project", help="Project name (e.g., void-granule)")
 
-    # verify (NEW)
+    # verify
     verify_parser = subparsers.add_parser("verify", help="Security scan skills for unsafe patterns")
     verify_parser.add_argument("path", nargs="?", help="Specific skill path to scan (default: all discovered)")
+
+    # install
+    install_parser = subparsers.add_parser("install", help="Register this skill to local Agent platform(s)")
+    install_parser.add_argument("--platform", "-p", nargs="+", metavar="PLATFORM",
+                                help="Target platform(s): " + ", ".join(PLATFORM_SKILL_DIRS.keys()))
+    install_parser.add_argument("--all", "-a", action="store_true", dest="install_all",
+                                help="Install to all detected platforms")
+    install_parser.add_argument("--dry-run", action="store_true", help="Preview without making changes")
 
     # Allow --verbose/-v to appear before OR after the subcommand
     args, _ = parser.parse_known_args()
@@ -693,6 +788,9 @@ def main():
         harvest_knowledge(args.project)
     elif args.command == "verify":
         verify_skills(target_path=args.path)
+    elif args.command == "install":
+        skill_dir = Path(__file__).resolve().parent.parent
+        install_skill(skill_dir, platforms=args.platform, install_all=args.install_all, dry_run=args.dry_run)
     else:
         parser.print_help()
 
