@@ -18,8 +18,8 @@ def run_git(repo_path, args):
         print(f"Error: Git command timed out in {repo_path}")
         return None
     except subprocess.CalledProcessError as e:
-        print(f"Error running git in {repo_path}: {e.stderr}")
-        return None
+        # Standardize error output for diagnosis
+        return f"ERROR: {e.stderr.strip()}"
 
 def find_repo_for_skill(skill_name):
     # Standard check: is it in our main repo?
@@ -84,23 +84,40 @@ def cmd_push(args):
 
     for repo in repos_to_push:
         print(f"\n--- Syncing Repo: {repo} ---")
-        # Check status
+        
+        # 1. Pull changes first to avoid conflicts
+        print("Checking for remote updates...")
+        pull_res = run_git(repo, ["pull", "--rebase", "origin", "main"])
+        if pull_res and "ERROR" in pull_res:
+             if "unstaged changes" in pull_res or "locally modified files" in pull_res:
+                 print("Local changes detected. Stashing before pull...")
+                 run_git(repo, ["stash"])
+                 run_git(repo, ["pull", "--rebase", "origin", "main"])
+                 run_git(repo, ["stash", "pop"])
+             else:
+                 print(f"Warning: Pull failed. Proceeding with caution. Details: {pull_res}")
+
+        # 2. Check status
         status = run_git(repo, ["status", "--short"])
-        if not status:
-            print("No changes to commit. Pushing anyway to sync metadata...")
+        if not status or status.startswith("ERROR"):
+            print("No local changes to commit. Syncing metadata (push)...")
             run_git(repo, ["push", "origin", "main"])
             continue
             
         print("Pending changes:")
         print(status)
         
-        # Add, Commit, Push
+        # 3. Add, Commit, Push
         run_git(repo, ["add", "."])
         commit_msg = args.message if args.message else "chore: sync skill updates"
         run_git(repo, ["commit", "-m", commit_msg])
+        
         print("Pushing to GitHub...")
-        run_git(repo, ["push", "origin", "main"])
-        print("Success!")
+        push_res = run_git(repo, ["push", "origin", "main"])
+        if push_res and "ERROR" in push_res:
+            print(f"Failed to push: {push_res}")
+        else:
+            print("Success!")
 
 def main():
     parser = argparse.ArgumentParser(description="Skill Git Sync Helper")
