@@ -419,6 +419,7 @@ PLATFORM_SKILL_DIRS = {
     "windsurf":    HOME / ".codeium" / "windsurf" / "skills",
     "cline":       HOME / ".clinerules" / "skills",
     "kiro":        HOME / ".kiro" / "skills",
+    "qwen":        HOME / ".qwen" / "skills",
 }
 
 
@@ -436,6 +437,7 @@ def detect_platforms():
         ("windsurf",    HOME / ".codeium" / "windsurf"),
         ("cline",       HOME / ".clinerules"),
         ("kiro",        HOME / ".kiro"),
+        ("qwen",        HOME / ".qwen"),
     ]
     for name, path in checks:
         if path.exists():
@@ -529,6 +531,60 @@ def check_paths():
                     print(f">> Suggestion: ln -s ~/.agents/skills {desensitize_path(targets[name])}")
     if not issues_found:
         print("✓ All active environments are aligned via symlinks.")
+    else:
+        print("\n>> Pro-tip: Run 'python3 skill_manager.py align-platforms' to fix all alignment issues automatically.")
+
+
+def align_platforms():
+    print("--- Aligning Platform Skill Directories to Universal Master ---")
+    master = PLATFORM_SKILL_DIRS["universal"]
+    if not master.exists():
+        master.mkdir(parents=True, exist_ok=True)
+        print(f"Created master directory: {master}")
+
+    for name, path in PLATFORM_SKILL_DIRS.items():
+        if name == "universal":
+            continue
+
+        # Check if platform parent exists (e.g., ~/.claude exists)
+        parent = path.parent
+        # Small tweak for nested paths like windsurf
+        if name == "windsurf":
+             parent = path.parent.parent
+
+        if not parent.exists():
+            continue
+
+        if path.exists():
+            if path.is_symlink():
+                try:
+                    target = os.readlink(path)
+                    if Path(target).expanduser().resolve() == master.resolve():
+                        print(f"✓ {name:<12}: Already aligned.")
+                        continue
+                    else:
+                        print(f"[!] {name:<12}: Aligned to different target. Updating...")
+                        path.unlink()
+                except Exception:
+                    print(f"[!] {name:<12}: Broken symlink. Removing...")
+                    path.unlink()
+            else:
+                # It's a real directory. Backup and link.
+                backup = path.with_name(f"{path.name}_backup_{datetime.now().strftime('%Y%m%d%H%M%S')}")
+                print(f"[!] {name:<12}: Real directory found. Backing up to {backup.name}...")
+                path.rename(backup)
+
+        # Create symlink
+        try:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            if IS_WINDOWS:
+                import _winapi
+                _winapi.CreateJunction(str(master), str(path))
+            else:
+                os.symlink(master, path)
+            print(f"✓ {name:<12}: Successfully aligned to {desensitize_path(master)}")
+        except Exception as e:
+            print(f"✗ {name:<12}: Failed to align: {e}")
 
 
 def update_gitignore(target_paths):
@@ -737,6 +793,9 @@ def main():
     # check-paths
     subparsers.add_parser("check-paths", help="Check and align skill paths across IDEs")
 
+    # align-platforms
+    subparsers.add_parser("align-platforms", help="Automatically align platform skill directories to ~/.agents/skills")
+
     # globalize
     glob_parser = subparsers.add_parser("globalize", help="Move a skill to global scope")
     glob_parser.add_argument("path", help="Path to the skill directory or file")
@@ -782,6 +841,8 @@ def main():
         list_summaries()
     elif args.command == "check-paths":
         check_paths()
+    elif args.command == "align-platforms":
+        align_platforms()
     elif args.command == "globalize":
         globalize(args.path)
     elif args.command == "harvest":
