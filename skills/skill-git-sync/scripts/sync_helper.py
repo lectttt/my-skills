@@ -11,8 +11,12 @@ REPO_ROOT = HOME / ".anyskill" / "repo"
 def run_git(repo_path, args):
     try:
         cmd = ["git", "-C", str(repo_path)] + args
-        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        # Add timeout to prevent hanging on credential prompts or network issues
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True, timeout=60)
         return result.stdout.strip()
+    except subprocess.TimeoutExpired:
+        print(f"Error: Git command timed out in {repo_path}")
+        return None
     except subprocess.CalledProcessError as e:
         print(f"Error running git in {repo_path}: {e.stderr}")
         return None
