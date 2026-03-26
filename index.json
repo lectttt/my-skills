@@ -67,7 +67,10 @@
     "file": "skill-manager-skill/SKILL.md",
     "files": [
       "skill-manager-skill/SKILL.md",
+      "skill-manager-skill/install.sh",
       "skill-manager-skill/output.txt",
+      "skill-manager-skill/references/commands-reference.md",
+      "skill-manager-skill/references/environment-alignment.md",
       "skill-manager-skill/scripts/__pycache__/skill_manager.cpython-314.pyc",
       "skill-manager-skill/scripts/current_skills.txt",
       "skill-manager-skill/scripts/skill_manager.py",
