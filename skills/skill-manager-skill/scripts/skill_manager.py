@@ -23,6 +23,7 @@ HOME = Path.home()
 
 GLOBAL_SKILLS_DIR = HOME / ".gemini" / "antigravity" / "skills"
 BRAIN_DIR = HOME / ".gemini" / "antigravity" / "brain"
+SKILL_ROOT = Path(__file__).resolve().parent.parent
 
 AGENT_PATHS = [
     Path(".agent/skills"),
@@ -172,7 +173,7 @@ def _extract_from_dir(target_dir, scope):
     return results
 
 
-def find_skills(scan_all=False):
+def find_skills(scan_all=False, only_current=False):
     skills = []
     seen_paths = set()
 
@@ -183,7 +184,7 @@ def find_skills(scan_all=False):
                 skills.append(s)
 
     # 1. Global skills
-    if GLOBAL_SKILLS_DIR.exists():
+    if not only_current and GLOBAL_SKILLS_DIR.exists():
         vprint(f"[Scan] Global: {GLOBAL_SKILLS_DIR}")
         for item in GLOBAL_SKILLS_DIR.iterdir():
             if item.is_dir() and (item / "SKILL.md").exists():
@@ -202,14 +203,15 @@ def find_skills(scan_all=False):
 
     # 2. Current directory
     cwd = Path.cwd()
+    current_scope = f"Project ({cwd.name}) [Current] @ {desensitize_path(cwd)}"
     for sub in AGENT_PATHS:
         target_dir = cwd / sub
         if target_dir.exists():
             vprint(f"[Scan] CWD/{sub}")
-            add(_extract_from_dir(target_dir, "Project (Current)"))
+            add(_extract_from_dir(target_dir, current_scope))
 
-    # 3. Dynamically discovered playgrounds
-    if scan_all:
+    # 3. Dynamically discovered playgrounds (Skip if only_current)
+    if scan_all and not only_current:
         vprint("[Scan] Discovering playgrounds dynamically...")
         playgrounds = discover_playgrounds()
         vprint(f"[Scan] Found {len(playgrounds)} playground(s)")
@@ -220,7 +222,9 @@ def find_skills(scan_all=False):
                 target_dir = pg / sub
                 if target_dir.exists():
                     vprint(f"[Scan] {pg.name}/{sub}")
-                    add(_extract_from_dir(target_dir, f"Project ({pg.name})"))
+                    # Use unique scope with path hint to avoid confusion
+                    pg_scope = f"Project ({pg.name}) @ {desensitize_path(pg)}"
+                    add(_extract_from_dir(target_dir, pg_scope))
 
     return skills
 
@@ -246,8 +250,27 @@ def desensitize_path(path):
 # Commands
 # ---------------------------------------------------------------------------
 
-def list_skills(scan_all=False, as_json=False, output_file=None, log_json=False):
-    skills = find_skills(scan_all=scan_all)
+def list_skills(scan_all=False, as_json=False, output_file=None, log_json=False, only_current=False, force_save=False):
+    # Logic change: Avoid defaulting to a global path for all-scan to prevent permission prompts.
+    # Only default to a file if it's a local workspace scan or explicitly forced.
+    if not output_file:
+        if force_save:
+            output_file = str(SKILL_ROOT / "registry.md")
+        elif not scan_all:
+            # If it's a workspace-only scan, try to save in the local manager directory if it exists
+            cwd = Path.cwd()
+            for ap in AGENT_PATHS:
+                target_dir = cwd / ap
+                if target_dir.exists() and target_dir.is_dir():
+                    manager_reg_dir = target_dir / "skill-manager-skill"
+                    try:
+                        manager_reg_dir.mkdir(parents=True, exist_ok=True)
+                        output_file = str(manager_reg_dir / "registry.md")
+                        break
+                    except Exception:
+                        pass
+    
+    skills = find_skills(scan_all=scan_all, only_current=only_current)
 
     if as_json or log_json:
         output_content = json.dumps({
@@ -774,8 +797,10 @@ def main():
     list_parser = subparsers.add_parser("list", help="List all skills and rules")
     list_parser.add_argument("--all", "-a", action="store_true", help="Scan all playgrounds (dynamic discovery)")
     list_parser.add_argument("--json", "-j", action="store_true", help="JSON output")
+    list_parser.add_argument("--current", "-c", action="store_true", help="Only list skills in CURRENT project")
     list_parser.add_argument("--log-json", action="store_true", help="Structured JSON output for agent pipelines")
     list_parser.add_argument("--output", "-o", help="Output to persistent file path")
+    list_parser.add_argument("--save", "-s", action="store_true", help="Force saving results to registry.md")
 
     # audit
     subparsers.add_parser("audit", help="Audit skill placement and IDE recognition")
@@ -832,7 +857,7 @@ def main():
         sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
     if args.command == "list":
-        list_skills(scan_all=args.all, as_json=args.json, output_file=args.output, log_json=args.log_json)
+        list_skills(scan_all=args.all, as_json=args.json, output_file=args.output, log_json=args.log_json, only_current=args.current, force_save=args.save)
     elif args.command == "audit":
         audit_skills()
     elif args.command == "reconcile":
