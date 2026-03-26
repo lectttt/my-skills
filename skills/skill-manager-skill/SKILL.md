@@ -1,14 +1,17 @@
 ---
 name: skill-manager-skill
 description: >-
-  Manage, list, and organize agent skills across all Antigravity environments.
-  Use this skill to quickly find available skills, move skills to the global
-  directory, or adjust their operational scope.
-  Triggers on: /skill-manager, list skills, manage skills, organize skills,
-  globalize skill, change skill scope.
+  Manage, list, audit, reconcile, and secure agent skills across all
+  Antigravity, Claude, Cursor, and universal agent environments.
+  Triggers on: /skill-manager, list skills, manage skills, audit skills,
+  organize skills, globalize skill, reconcile paths, change skill scope,
+  verify skills, security scan skills.
 metadata:
   author: Antigravity
-  version: 1.1.0
+  version: 2.0.0
+  created: 2026-03-25
+  last_reviewed: 2026-03-25
+  review_interval_days: 90
 ---
 # /skill-manager — Skill & Agent Organizer
 
@@ -20,34 +23,65 @@ User invokes `/skill-manager` or asks related questions:
 - "List all available skills"
 - "Show my skills"
 - "Summarize all workspace work"
-- "Globalize the skill_creator skill"
-- "Harvest knowledge from void-granule"
-- "Change the scope of frontend-design to project-only"
+- "Globalize the X skill"
+- "Verify skills for security issues"
+- "Change the scope of X to project-only"
 
 ## Commands
 
-The skill uses `scripts/skill_manager.py` to perform actions.
+The skill uses `scripts/skill_manager.py`. See `references/commands-reference.md` for full CLI docs.
 
 ### 1. 列出全量技能 (List All Skills)
-默认并行扫描全局与所有 Playground（目前约 30+ 目录）。脚本自带“智能更新”机制：若条数与内容未变，则不覆盖现有文件。
 ```bash
-# 执行扫描并更新持久化缓存 (自动进行条数与内容校验)
-python scripts/skill_manager.py list --all --output "skills_list.md"
+python ~/.gemini/antigravity/skills/skill-manager-skill/scripts/skill_manager.py list --all --output "skills_list.md"
 ```
 
-### 2. 查看工作总结 (List Summaries)
-扫描所有 Workspace 的 `walkthrough.md` 笔记。
+### 2. 查看工作总结 (Workspace Summaries)
 ```bash
-python scripts/skill_manager.py summaries
+python ~/.gemini/antigravity/skills/skill-manager-skill/scripts/skill_manager.py summaries
+```
+
+### 3. IDE 路径对齐检查 (Check Path Alignment)
+```bash
+python ~/.gemini/antigravity/skills/skill-manager-skill/scripts/skill_manager.py check-paths
+```
+
+### 4. 技能纠察 (Audit Skills)
+```bash
+python ~/.gemini/antigravity/skills/skill-manager-skill/scripts/skill_manager.py audit
+```
+
+### 5. 技能迁移与对齐 (Reconcile Skills)
+```bash
+python ~/.gemini/antigravity/skills/skill-manager-skill/scripts/skill_manager.py reconcile --mode link
+```
+
+### 6. 安全扫描 (Verify / Security Scan) ← NEW
+```bash
+# Scan all discovered skills
+python ~/.gemini/antigravity/skills/skill-manager-skill/scripts/skill_manager.py verify
+
+# Scan a specific skill
+python ~/.gemini/antigravity/skills/skill-manager-skill/scripts/skill_manager.py verify ~/.gemini/antigravity/skills/my-skill
 ```
 
 ## Methodology & Agent Best Practices
 
-1. **全面性 (Full-Scan)**: 始终使用 `--all` 标志，确保能发现所有非全局的项目级技能。
-2. **持久化与增量更新 (Persistence)**: 
-   - 优先将结果输出到持久化文件（如 `skills_list.md`）而非临时目录。
-   - 脚本执行时会自动检查当前扫描结果与旧文件条数/内容。若输出提示 `[UNCHANGED]`，则直接从现有文件读取即可。
-3. **显示规范**: **最终输出格式必须是整洁的 Markdown 表格，严禁将表格整体置于代码块内。**
+1. **全面性 (Full-Scan)**: 始终使用 `--all` 标志。脚本动态发现所有 Playground，无须硬编码路径。
+2. **持久化与增量更新 (Persistence)**: 输出到 `skills_list.md` 并利用智能差分检查（`[UNCHANGED]` 意味着缓存仍有效）。
+3. **可观测性 (Observability)**: 加 `--verbose` 查看每个目录的扫描详情；加 `--log-json` 获取结构化 JSON（适合 Agent 管道）。
+4. **显示规范 (Display Protocol)**:
+   > [!IMPORTANT]
+   > - **最终输出格式必须是整洁的 Markdown 表格，严禁将表格整体置于代码块内。**
+   > - **语言统一性**: 输出语言应与用户对话语言保持一致。
 
-**Performance Tip**: 扫描 30+ 目录较为耗时。如果脚本提示 `[UNCHANGED]`，说明自上次运行以来没有任何技能增减或描述变更。
+## References
+- `references/commands-reference.md` — Full CLI documentation
+- `references/environment-alignment.md` — Troubleshooting cross-IDE path issues
 
+## Installation
+```bash
+bash ~/.gemini/antigravity/skills/skill-manager-skill/install.sh
+# or for all platforms:
+bash ~/.gemini/antigravity/skills/skill-manager-skill/install.sh --all
+```
