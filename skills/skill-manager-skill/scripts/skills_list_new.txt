@@ -1,9 +1,0 @@
-NAME                      | SCOPE                     | DESCRIPTION
-----------------------------------------------------------------------------------------------------
-agent-safety-and-token-guard-skill | Global                    | Safety protocols for AI agents to handle large files (>50KB/1000 lines
-frontend-design           | Global                    | Create distinctive, production-grade frontend interfaces with high des
-skill-manager-skill       | Global                    | 
-agent-skill-creator       | Global                    | 
-installer.md              | Project (axial-pioneer)   | How to install tools from GitHub by following their README instruction
-remotion-best-practices   | Project (outer-hypernova) | Best practices for Remotion - Video creation in React
-agent-skill-creator       | Project (void-granule)    | 
