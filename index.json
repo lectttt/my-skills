@@ -60,6 +60,17 @@
     ]
   },
   {
+    "name": "skill-git-sync",
+    "description": "同步本地技能改动至 GitHub 云端，并清晰管理技能目录间的关系。",
+    "category": "",
+    "path": "skill-git-sync",
+    "file": "skill-git-sync/SKILL.md",
+    "files": [
+      "skill-git-sync/SKILL.md",
+      "skill-git-sync/scripts/sync_helper.py"
+    ]
+  },
+  {
     "name": "skill-manager-skill",
     "description": ">-",
     "category": "",
